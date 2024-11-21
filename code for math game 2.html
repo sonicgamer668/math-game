@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      background-color: #fff;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .timer, .score, .problem, .feedback {
+      margin: 10px 0;
+      font-size: 18px;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 16px;
+      width: 80%;
+      margin: 10px 0;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 10px 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .pause {
+      background-color: #f39c12;
+      color: white;
+    }
+
+    .submit {
+      background-color: #27ae60;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Math Game</h1>
+    <div class="timer">Time: <span id="time">60</span> seconds</div>
+    <div class="score">Score: <span id="score">0</span></div>
+    <div class="problem">Solve: <span id="problem">Loading...</span></div>
+    <input type="text" id="answer" placeholder="Your Answer" />
+    <div class="feedback" id="feedback"></div>
+    <button class="submit" id="submitBtn">Submit</button>
+    <button class="pause" id="pauseBtn">Pause</button>
+  </div>
+
+  <script>
+    let score = 0;
+    let timeLeft = 60;
+    let timer;
+    let paused = false;
+    let currentProblem;
+
+    const timeEl = document.getElementById('time');
+    const scoreEl = document.getElementById('score');
+    const problemEl = document.getElementById('problem');
+    const feedbackEl = document.getElementById('feedback');
+    const answerInput = document.getElementById('answer');
+    const submitBtn = document.getElementById('submitBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+
+    // Generate a math problem based on score
+    function generateProblem() {
+      const difficulty = Math.min(Math.floor(score / 5) + 1, 5);
+      let a, b, problem, solution;
+
+      switch (difficulty) {
+        case 1: // Easy addition
+          a = Math.floor(Math.random() * 10) + 1;
+          b = Math.floor(Math.random() * 10) + 1;
+          problem = `${a} + ${b}`;
+          solution = a + b;
+          break;
+        case 2: // Subtraction
+          a = Math.floor(Math.random() * 20) + 10;
+          b = Math.floor(Math.random() * 10) + 1;
+          problem = `${a} - ${b}`;
+          solution = a - b;
+          break;
+        case 3: // Multiplication
+          a = Math.floor(Math.random() * 10) + 1;
+          b = Math.floor(Math.random() * 10) + 1;
+          problem = `${a} × ${b}`;
+          solution = a * b;
+          break;
+        case 4: // Division
+          a = Math.floor(Math.random() * 50) + 20;
+          b = Math.floor(Math.random() * 10) + 1;
+          problem = `${a} ÷ ${b} (round to integer)`;
+          solution = Math.floor(a / b);
+          break;
+        case 5: // Square
+          a = Math.floor(Math.random() * 10) + 1;
+          problem = `${a}²`;
+          solution = a * a;
+          break;
+      }
+
+      currentProblem = { problem, solution };
+      problemEl.textContent = problem;
+    }
+
+    // Start or reset the timer
+    function startTimer() {
+      clearInterval(timer);
+      timeLeft = 60;
+      timeEl.textContent = timeLeft;
+
+      timer = setInterval(() => {
+        if (!paused) {
+          timeLeft--;
+          timeEl.textContent = timeLeft;
+
+          if (timeLeft <= 0) {
+            clearInterval(timer);
+            nextProblem(false); // Timeout goes to the next problem
+          }
+        }
+      }, 1000);
+    }
+
+    // Check the user's answer
+    function checkAnswer() {
+      const userAnswer = parseInt(answerInput.value);
+      answerInput.value = ''; // Clear input field
+
+      if (userAnswer === currentProblem.solution) {
+        score++;
+        feedbackEl.textContent = 'Correct!';
+        feedbackEl.style.color = 'green';
+      } else {
+        feedbackEl.textContent = `Wrong! The correct answer was ${currentProblem.solution}.`;
+        feedbackEl.style.color = 'red';
+      }
+
+      nextProblem(true);
+    }
+
+    // Load the next problem
+    function nextProblem(resetTimer) {
+      if (resetTimer) startTimer();
+      generateProblem();
+      scoreEl.textContent = score;
+    }
+
+    // Pause or resume the game
+    function togglePause() {
+      paused = !paused;
+      pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+    }
+
+    // Event Listeners
+    submitBtn.addEventListener('click', checkAnswer);
+    pauseBtn.addEventListener('click', togglePause);
+
+    // Initialize game
+    generateProblem();
+    startTimer();
+  </script>
+</body>
+</html>
